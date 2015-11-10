@@ -14,7 +14,7 @@ public class SampleLoader
     public static SonarSample loadSample(String resourceName) throws UnsupportedAudioFileException, IOException
     {
         // Hack to prevent "mark/reset not supported" on some systems 
-        byte[] d = rip(SampleLoader.class.getResourceAsStream(resourceName));
+        byte[] d = rip(new FileInputStream(new File("res/" + resourceName)));
         AudioInputStream ais = AudioSystem.getAudioInputStream(new ByteArrayInputStream(d));
         return buildSample(rip(ais), ais.getFormat());
     }

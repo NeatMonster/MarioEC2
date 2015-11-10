@@ -55,7 +55,7 @@ public class LevelScene extends Scene implements SpriteContext
     {
         try
         {
-            Level.loadBehaviors(new DataInputStream(LevelScene.class.getResourceAsStream("/tiles.dat")));
+            Level.loadBehaviors(new DataInputStream(new FileInputStream(new File("res/tiles.dat"))));
         }
         catch (IOException e)
         {
