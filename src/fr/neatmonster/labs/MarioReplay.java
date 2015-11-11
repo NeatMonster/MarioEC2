@@ -35,7 +35,6 @@ import fr.neatmonster.neato.Synapse;
 
 @SuppressWarnings("serial")
 public class MarioReplay extends MarioEC2 {
-
     public static class Box {
         public int          x;
         public int          y;
@@ -55,14 +54,10 @@ public class MarioReplay extends MarioEC2 {
 
     public static final String[] BUTTONS = new String[] { "JUMP", "SPEED", "UP",
             "DOWN", "LEFT", "RIGHT" };
-
-    public static final int XMIN = 225;
-
-    public static final int XMAX = 565;
-
-    public static final int YMIN = 25;
-
-    public static final int YMAX = 215;
+    public static final int      XMIN    = 225;
+    public static final int      XMAX    = 565;
+    public static final int      YMIN    = 25;
+    public static final int      YMAX    = 215;
 
     public static void main(final String[] args) {
         final JFrame frame = new JFrame("Mario Replay");
@@ -94,9 +89,8 @@ public class MarioReplay extends MarioEC2 {
         replay.start();
     }
 
-    public volatile boolean reset = false;
-
-    public int nextEl = 0;
+    public volatile boolean reset       = false;
+    public int              nextElement = 0;
 
     public MarioReplay(final File file) {
         super();
@@ -143,7 +137,7 @@ public class MarioReplay extends MarioEC2 {
 
             final List<Individual> elements = ((Ensemble) creature).elements;
             final Individual current = elements
-                    .get(nextEl++ / 20 % elements.size());
+                    .get(nextElement++ / 20 % elements.size());
 
             final Map<Integer, Box> cells = new HashMap<Integer, Box>();
             for (int i = 0; i < INPUTS; ++i) {
