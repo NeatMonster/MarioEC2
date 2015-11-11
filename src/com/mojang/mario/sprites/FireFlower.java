@@ -43,7 +43,7 @@ public class FireFlower extends Sprite
             if (yMarioD > -height && yMarioD < world.mario.height)
             {
                 world.mario.getFlower();
-                spriteContext.removeSprite(this);
+                world.removeSprite(this);
             }
         }
     }

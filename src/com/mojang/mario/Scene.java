@@ -9,7 +9,7 @@ import com.mojang.sonar.SoundListener;
 public abstract class Scene implements SoundListener
 {
     public SonarSoundEngine sound;
-    public static boolean[] keys = new boolean[16];
+    public boolean[] keys = new boolean[16];
 
     public void toggleKey(int key, boolean isPressed)
     {

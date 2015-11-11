@@ -52,7 +52,7 @@ public class Mushroom extends Sprite
             if (yMarioD > -height && yMarioD < world.mario.height)
             {
                 world.mario.getMushroom();
-                spriteContext.removeSprite(this);
+                world.removeSprite(this);
             }
         }
     }

@@ -6,14 +6,16 @@ public class Sparkle extends Sprite
 {
     public int life;
     public int xPicStart;
+    public SpriteContext ctx;
     
-    public Sparkle(int x, int y, float xa, float ya)
+    public Sparkle(SpriteContext ctx, int x, int y, float xa, float ya)
     {
-        this(x, y, xa, ya, (int)(Math.random()*2), 0, 5);
+        this(ctx, x, y, xa, ya, (int)(Math.random()*2), 0, 5);
     }
 
-    public Sparkle(int x, int y, float xa, float ya, int xPic, int yPic, int timeSpan)
+    public Sparkle(SpriteContext ctx, int x, int y, float xa, float ya, int xPic, int yPic, int timeSpan)
     {
+        this.ctx = ctx;
         sheet = Art.particles;
         this.x = x;
         this.y = y;
@@ -37,7 +39,7 @@ public class Sparkle extends Sprite
         else
             xPic = xPicStart+(10-life)*4/10;
         
-        if (life--<0) Sprite.spriteContext.removeSprite(this);
+        if (life--<0) ctx.removeSprite(this);
         
         x+=xa;
         y+=ya;

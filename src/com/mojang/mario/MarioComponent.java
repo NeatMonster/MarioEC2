@@ -18,19 +18,41 @@ import com.mojang.sonar.SonarSoundEngine;
 
 public class MarioComponent extends JComponent implements Runnable, KeyListener, FocusListener
 {
+    public boolean large = false;
+    public boolean fire = false;
+    public int coins = 0;
+    public int lives = 3;
+    public String levelString = "none";
+    public int kills = 0;
+    public int damage = 0;
+    public int powerup = 0;
+
+    public void resetStatic()
+    {
+        large = false;
+        fire = false;
+        coins = 0;
+        lives = 3;
+        levelString = "none";
+        kills = 0;
+        damage = 0;
+        powerup = 0;
+    }
+
     private static final long serialVersionUID = 739318775993206607L;
     public static final int TICKS_PER_SECOND = 24;
 
     private boolean running = false;
-    private int width, height;
-    private GraphicsConfiguration graphicsConfiguration;
-    private Scene scene;
-    private SonarSoundEngine sound;
+    protected int width;
+    protected int height;
+    protected GraphicsConfiguration graphicsConfiguration;
+    protected Scene scene;
+    protected SonarSoundEngine sound;
     private boolean focused = false;
-    private boolean useScale2x = false;
+    protected boolean useScale2x = false;
     private MapScene mapScene;
 
-    private Scale2x scale2x = new Scale2x(320, 240);
+    protected Scale2x scale2x = new Scale2x(320, 240);
 
     public MarioComponent(int width, int height)
     {
@@ -260,8 +282,8 @@ public class MarioComponent extends JComponent implements Runnable, KeyListener,
     {
         scene = mapScene;
         mapScene.startMusic();
-        Mario.lives--;
-        if (Mario.lives == 0)
+        lives--;
+        if (lives == 0)
         {
             lose();
         }
@@ -297,7 +319,7 @@ public class MarioComponent extends JComponent implements Runnable, KeyListener,
     
     public void toTitle()
     {
-        Mario.resetStatic();
+        resetStatic();
         scene = new TitleScene(this, graphicsConfiguration);
         scene.setSound(sound);
         scene.init();

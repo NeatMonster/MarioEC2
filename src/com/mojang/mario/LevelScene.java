@@ -15,15 +15,15 @@ import com.mojang.mario.level.*;
 
 public class LevelScene extends Scene implements SpriteContext
 {
-    private List<Sprite> sprites = new ArrayList<Sprite>();
+    public List<Sprite> sprites = new ArrayList<Sprite>();
     private List<Sprite> spritesToAdd = new ArrayList<Sprite>();
     private List<Sprite> spritesToRemove = new ArrayList<Sprite>();
 
     public Level level;
     public Mario mario;
     public float xCam, yCam, xCamO, yCamO;
-    public static Image tmpImage;
-    private int tick;
+    //public static Image tmpImage;
+    public int tick;
 
     private LevelRenderer layer;
     private BgRenderer[] bgLayer = new BgRenderer[2];
@@ -32,13 +32,13 @@ public class LevelScene extends Scene implements SpriteContext
 
     public boolean paused = false;
     public int startTime = 0;
-    private int timeLeft;
+    public int timeLeft;
 
     //    private Recorder recorder = new Recorder();
     //    private Replayer replayer = null;
     
     private long levelSeed;
-    private MarioComponent renderer;
+    public MarioComponent renderer;
     private int levelType;
     private int levelDifficulty;
 
@@ -86,7 +86,7 @@ public class LevelScene extends Scene implements SpriteContext
         
 
         paused = false;
-        Sprite.spriteContext = this;
+        //Sprite.spriteContext = this;
         sprites.clear();
         layer = new LevelRenderer(level, graphicsConfiguration, 320, 240);
         for (int i = 0; i < 2; i++)
@@ -233,7 +233,7 @@ public class LevelScene extends Scene implements SpriteContext
                                     xCannon = x;
                                     for (int i = 0; i < 8; i++)
                                     {
-                                        addSprite(new Sparkle(x * 16 + 8, y * 16 + (int) (Math.random() * 16), (float) Math.random() * dir, 0, 0, 1, 5));
+                                        addSprite(new Sparkle(this, x * 16 + 8, y * 16 + (int) (Math.random() * 16), (float) Math.random() * dir, 0, 0, 1, 5));
                                     }
                                     addSprite(new BulletBill(this, x * 16 + 8 + dir * 8, y * 16 + 15, dir));
                                     hasShotCannon = true;
@@ -266,6 +266,7 @@ public class LevelScene extends Scene implements SpriteContext
                     {
                         if (sprite.shellCollideCheck(shell))
                         {
+                            ++renderer.kills;
                             if (mario.carried == shell && !shell.dead)
                             {
                                 mario.carried = null;
@@ -285,6 +286,7 @@ public class LevelScene extends Scene implements SpriteContext
                     {
                         if (sprite.fireballCollideCheck(fireball))
                         {
+                            ++renderer.kills;
                             fireball.die();
                         }
                     }
@@ -341,14 +343,14 @@ public class LevelScene extends Scene implements SpriteContext
         g.setColor(Color.BLACK);
         layer.renderExit1(g, tick, paused?0:alpha);
         
-        drawStringDropShadow(g, "MARIO " + df.format(Mario.lives), 0, 0, 7);
+        drawStringDropShadow(g, "MARIO " + df.format(renderer.lives), 0, 0, 7);
         drawStringDropShadow(g, "00000000", 0, 1, 7);
         
         drawStringDropShadow(g, "COIN", 14, 0, 7);
-        drawStringDropShadow(g, " "+df.format(Mario.coins), 14, 1, 7);
+        drawStringDropShadow(g, " "+df.format(renderer.coins), 14, 1, 7);
 
         drawStringDropShadow(g, "WORLD", 24, 0, 7);
-        drawStringDropShadow(g, " "+Mario.levelString, 24, 1, 7);
+        drawStringDropShadow(g, " "+renderer.levelString, 24, 1, 7);
 
         drawStringDropShadow(g, "TIME", 35, 0, 7);
         int time = (timeLeft+15-1)/15;
@@ -489,7 +491,7 @@ public class LevelScene extends Scene implements SpriteContext
             if (((Level.TILE_BEHAVIORS[block & 0xff]) & Level.BIT_SPECIAL) > 0)
             {
                 sound.play(Art.samples[Art.SAMPLE_ITEM_SPROUT], new FixedSoundSource(x * 16 + 8, y * 16 + 8), 1, 1, 1);
-                if (!Mario.large)
+                if (!renderer.large)
                 {
                     addSprite(new Mushroom(this, x * 16 + 8, y * 16 + 8));
                 }
@@ -500,9 +502,9 @@ public class LevelScene extends Scene implements SpriteContext
             }
             else
             {
-                Mario.getCoin();
+                mario.getCoin();
                 sound.play(Art.samples[Art.SAMPLE_GET_COIN], new FixedSoundSource(x * 16 + 8, y * 16 + 8), 1, 1, 1);
-                addSprite(new CoinAnim(x, y));
+                addSprite(new CoinAnim(this, x, y));
             }
         }
 
@@ -515,7 +517,7 @@ public class LevelScene extends Scene implements SpriteContext
                 level.setBlock(x, y, (byte) 0);
                 for (int xx = 0; xx < 2; xx++)
                     for (int yy = 0; yy < 2; yy++)
-                        addSprite(new Particle(x * 16 + xx * 8 + 4, y * 16 + yy * 8 + 4, (xx * 2 - 1) * 4, (yy * 2 - 1) * 4 - 8));
+                        addSprite(new Particle(this, x * 16 + xx * 8 + 4, y * 16 + yy * 8 + 4, (xx * 2 - 1) * 4, (yy * 2 - 1) * 4 - 8));
             }
             else
             {
@@ -529,10 +531,10 @@ public class LevelScene extends Scene implements SpriteContext
         byte block = level.getBlock(x, y);
         if (((Level.TILE_BEHAVIORS[block & 0xff]) & Level.BIT_PICKUPABLE) > 0)
         {
-            Mario.getCoin();
+            mario.getCoin();
             sound.play(Art.samples[Art.SAMPLE_GET_COIN], new FixedSoundSource(x * 16 + 8, y * 16 + 8), 1, 1, 1);
             level.setBlock(x, y, (byte) 0);
-            addSprite(new CoinAnim(x, y + 1));
+            addSprite(new CoinAnim(this, x, y + 1));
         }
 
         for (Sprite sprite : sprites)

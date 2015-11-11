@@ -435,13 +435,13 @@ public class MapScene extends Scene
                 }
             }
         }
-        if (!Mario.large)
+        if (!marioComponent.large)
         {
             g.drawImage(map[(tick) / 6 % 2][1], xMario + (int) (xMarioA * alpha), yMario + (int) (yMarioA * alpha) - 6, null);
         }
         else
         {
-            if (!Mario.fire)
+            if (!marioComponent.fire)
             {
                 g.drawImage(map[(tick) / 6 % 2+2][0], xMario + (int) (xMarioA * alpha), yMario + (int) (yMarioA * alpha) - 6-16, null);
                 g.drawImage(map[(tick) / 6 % 2+2][1], xMario + (int) (xMarioA * alpha), yMario + (int) (yMarioA * alpha) - 6, null);
@@ -453,7 +453,7 @@ public class MapScene extends Scene
             }
         }
         
-        drawStringDropShadow(g, "MARIO " + df.format(Mario.lives), 0, 0, 7);
+        drawStringDropShadow(g, "MARIO " + df.format(marioComponent.lives), 0, 0, 7);
 
         drawStringDropShadow(g, "WORLD "+(worldNumber+1), 32, 0, 7);
     }
@@ -530,7 +530,7 @@ public class MapScene extends Scene
                 {
                     if (level[x][y] == TILE_LEVEL && data[x][y] != 0 && data[x][y] > -10)
                     {
-                        Mario.levelString = (worldNumber + 1) + "-";
+                        marioComponent.levelString = (worldNumber + 1) + "-";
                         int difficulty = worldNumber+1;
                         int type = LevelGenerator.TYPE_OVERGROUND;
                         if (data[x][y] > 1 && new Random(seed + x * 313211 + y * 534321).nextInt(3) == 0)
@@ -541,16 +541,16 @@ public class MapScene extends Scene
                         {
                             if (data[x][y] == -2)
                             {
-                                Mario.levelString += "X";
+                                marioComponent.levelString += "X";
                                 difficulty += 2;
                             }
                             else if (data[x][y] == -1)
                             {
-                                Mario.levelString += "?";
+                                marioComponent.levelString += "?";
                             }
                             else
                             {
-                                Mario.levelString += "#";
+                                marioComponent.levelString += "#";
                                 difficulty += 1;
                             }
 
@@ -558,7 +558,7 @@ public class MapScene extends Scene
                         }
                         else
                         {
-                            Mario.levelString += data[x][y];
+                            marioComponent.levelString += data[x][y];
                         }
 
                         Art.stopMusic();

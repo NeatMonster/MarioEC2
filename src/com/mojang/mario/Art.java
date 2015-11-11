@@ -54,7 +54,7 @@ public class Art
     public static SonarSample[] samples = new SonarSample[100];
 
     private static Sequence[] songs = new Sequence[10];
-    private static Sequencer sequencer;
+    public static Sequencer sequencer;
 
 
     public static void init(GraphicsConfiguration gc, SonarSoundEngine sound)

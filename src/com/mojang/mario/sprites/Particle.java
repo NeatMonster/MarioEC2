@@ -5,14 +5,16 @@ import com.mojang.mario.Art;
 public class Particle extends Sprite
 {
     public int life;
+    public SpriteContext ctx;
     
-    public Particle(int x, int y, float xa, float ya)
+    public Particle(SpriteContext ctx, int x, int y, float xa, float ya)
     {
-        this(x, y, xa, ya, (int)(Math.random()*2), 0);
+        this(ctx, x, y, xa, ya, (int)(Math.random()*2), 0);
     }
 
-    public Particle(int x, int y, float xa, float ya, int xPic, int yPic)
+    public Particle(SpriteContext ctx, int x, int y, float xa, float ya, int xPic, int yPic)
     {
+        this.ctx = ctx;
         sheet = Art.particles;
         this.x = x;
         this.y = y;
@@ -30,7 +32,7 @@ public class Particle extends Sprite
 
     public void move()
     {
-        if (life--<0) Sprite.spriteContext.removeSprite(this);
+        if (life--<0) ctx.removeSprite(this);
         x+=xa;
         y+=ya;
         ya*=0.95f;

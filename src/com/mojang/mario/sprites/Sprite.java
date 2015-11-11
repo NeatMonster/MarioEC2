@@ -7,9 +7,7 @@ import com.mojang.mario.level.SpriteTemplate;
 import com.mojang.sonar.SoundSource;
 
 public class Sprite implements SoundSource
-{
-    public static SpriteContext spriteContext;
-    
+{    
     public float xOld, yOld, x, y, xa, ya;
     
     public int xPic, yPic;

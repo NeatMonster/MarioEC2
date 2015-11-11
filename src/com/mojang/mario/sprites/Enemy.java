@@ -95,11 +95,11 @@ public class Enemy extends Sprite
 
                         if (type == Enemy.ENEMY_RED_KOOPA)
                         {
-                            spriteContext.addSprite(new Shell(world, x, y, 0));
+                            world.addSprite(new Shell(world, x, y, 0));
                         }
                         else if (type == Enemy.ENEMY_GREEN_KOOPA)
                         {
-                            spriteContext.addSprite(new Shell(world, x, y, 1));
+                            world.addSprite(new Shell(world, x, y, 1));
                         }
                     }
                 }
@@ -123,9 +123,9 @@ public class Enemy extends Sprite
                 deadTime = 1;
                 for (int i = 0; i < 8; i++)
                 {
-                    world.addSprite(new Sparkle((int) (x + Math.random() * 16 - 8) + 4, (int) (y - Math.random() * 8) + 4, (float) (Math.random() * 2 - 1), (float) Math.random() * -1, 0, 1, 5));
+                    world.addSprite(new Sparkle(world, (int) (x + Math.random() * 16 - 8) + 4, (int) (y - Math.random() * 8) + 4, (float) (Math.random() * 2 - 1), (float) Math.random() * -1, 0, 1, 5));
                 }
-                spriteContext.removeSprite(this);
+                world.removeSprite(this);
             }
 
             if (flyDeath)
