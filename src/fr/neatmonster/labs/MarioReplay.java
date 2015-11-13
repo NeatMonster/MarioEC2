@@ -168,8 +168,8 @@ public class MarioReplay extends MarioEC2 {
             for (int n = 0; n < 4; ++n)
                 for (final Synapse connect : current.connects)
                     if (connect.enabled) {
-                        final Box in = cells.get(connect.input);
-                        final Box out = cells.get(connect.output);
+                        final Box in = cells.get(connect.input.neuronId);
+                        final Box out = cells.get(connect.output.neuronId);
 
                         if (connect.input.neuronId >= INPUTS + OUTPUTS) {
                             in.x = (int) (0.75 * in.x + 0.25 * out.x);

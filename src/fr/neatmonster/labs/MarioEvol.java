@@ -58,6 +58,8 @@ public class MarioEvol extends MarioEC2 {
 
                 if (hasEnsemble > 0)
                     queue.put(pop.ensemble);
+
+                pop.listAll();
                 for (int i = 0; i < POPULATION; ++i)
                     queue.put(pop.phenotypes.get(i));
 
@@ -100,20 +102,7 @@ public class MarioEvol extends MarioEC2 {
                 }
             }
 
-            pop.firstEvol();
-
-            try {
-                countdown = new CountDownLatch(POPULATION);
-
-                for (int i = POPULATION; i < 2 * POPULATION; ++i)
-                    queue.put(pop.phenotypes.get(i));
-
-                countdown.await();
-            } catch (final InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            pop.secondEvol();
+            pop.newGeneration();
 
             hasEnsemble = 1;
             System.out.println("Calculated in "
