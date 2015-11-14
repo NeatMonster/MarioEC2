@@ -70,9 +70,9 @@ public class MarioComponent extends JComponent implements Runnable, KeyListener,
         {
             sound = new SonarSoundEngine(64);
         }
-        catch (LineUnavailableException e)
+        catch (Exception e)
         {
-            e.printStackTrace();
+            //e.printStackTrace();
             sound = new FakeSoundEngine();
         }
 

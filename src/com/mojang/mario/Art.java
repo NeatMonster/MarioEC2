@@ -121,7 +121,7 @@ public class Art
         catch (Exception e)
         {
             sequencer = null;
-            e.printStackTrace();
+            //e.printStackTrace();
         }
     }
 

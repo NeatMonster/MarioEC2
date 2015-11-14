@@ -2,8 +2,6 @@ package fr.neatmonster.labs;
 
 import static fr.neatmonster.neato.Population.POPULATION;
 
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -27,7 +25,7 @@ import fr.neatmonster.neato.Population;
 
 @SuppressWarnings("serial")
 public class MarioEvol extends MarioEC2 {
-    public static final int THREADS = 8;
+    public static final int THREADS = 36;
 
     public static BlockingQueue<Individual> queue;
     public static CountDownLatch            countdown;
@@ -139,10 +137,7 @@ public class MarioEvol extends MarioEC2 {
 
     @Override
     public void run() {
-        final GraphicsEnvironment ge = GraphicsEnvironment
-                .getLocalGraphicsEnvironment();
-        final GraphicsDevice[] gs = ge.getScreenDevices();
-        graphicsConfiguration = gs[0].getConfigurations()[0];
+        graphicsConfiguration = new DummyGC();
 
         scene = new LevelScene(graphicsConfiguration, this, RANDOM.nextLong(),
                 DIFFICULTY, LevelGenerator.TYPE_OVERGROUND);
