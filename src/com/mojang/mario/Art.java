@@ -9,6 +9,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import javax.imageio.ImageIO;
 import javax.sound.midi.MidiSystem;
@@ -103,11 +104,19 @@ public class Art
         {
             sequencer = MidiSystem.getSequencer();
             sequencer.open();
-            songs[0] = MidiSystem.getSequence(new FileInputStream(new File("res/mus/smb3map1.mid")));
-            songs[1] = MidiSystem.getSequence(new FileInputStream(new File("res/mus/smwovr1.mid")));
-            songs[2] = MidiSystem.getSequence(new FileInputStream(new File("res/mus/smb3undr.mid")));
-            songs[3] = MidiSystem.getSequence(new FileInputStream(new File("res/mus/smwfortress.mid")));
-            songs[4] = MidiSystem.getSequence(new FileInputStream(new File("res/mus/smwtitle.mid")));
+            if (Art.class.getResource("Art.class").toString().startsWith("jar:")) {
+                songs[0] = MidiSystem.getSequence(Art.class.getResource("/res/mus/smb3map1.mid"));
+                songs[1] = MidiSystem.getSequence(Art.class.getResource("/res/mus/smwovr1.mid"));
+                songs[2] = MidiSystem.getSequence(Art.class.getResource("/res/mus/smb3undr.mid"));
+                songs[3] = MidiSystem.getSequence(Art.class.getResource("/res/mus/smwfortress.mid"));
+                songs[4] = MidiSystem.getSequence(Art.class.getResource("/res/mus/smwtitle.mid"));
+            } else {
+                songs[0] = MidiSystem.getSequence(new FileInputStream(new File("src/res/mus/smb3map1.mid")));
+                songs[1] = MidiSystem.getSequence(new FileInputStream(new File("src/res/mus/smwovr1.mid")));
+                songs[2] = MidiSystem.getSequence(new FileInputStream(new File("src/res/mus/smb3undr.mid")));
+                songs[3] = MidiSystem.getSequence(new FileInputStream(new File("src/res/mus/smwfortress.mid")));
+                songs[4] = MidiSystem.getSequence(new FileInputStream(new File("src/res/mus/smwtitle.mid"))); 
+            }
         }
         catch (Exception e)
         {
@@ -118,7 +127,12 @@ public class Art
 
     private static Image getImage(GraphicsConfiguration gc, String imageName) throws IOException
     {
-        BufferedImage source = ImageIO.read(new File("res/" + imageName));
+        InputStream input;
+        if (Art.class.getResource("Art.class").toString().startsWith("jar:"))
+            input = Art.class.getResourceAsStream("/res/" + imageName);
+        else
+            input = new FileInputStream(new File("src/res/" + imageName)); 
+        BufferedImage source = ImageIO.read(input);
         Image image = gc.createCompatibleImage(source.getWidth(), source.getHeight(), Transparency.BITMASK);
         Graphics2D g = (Graphics2D) image.getGraphics();
         g.setComposite(AlphaComposite.Src);

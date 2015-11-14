@@ -20,7 +20,7 @@ import fr.neatmonster.neato.Individual;
 
 @SuppressWarnings("serial")
 public abstract class MarioEC2 extends MarioComponent {
-    public static final int LEVELS     = 5;
+    public static final int LEVELS     = 10;
     public static final int DIFFICULTY = 3;
 
     public static final Random RANDOM = new Random();

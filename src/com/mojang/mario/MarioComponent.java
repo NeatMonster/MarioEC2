@@ -19,7 +19,7 @@ import com.mojang.sonar.SonarSoundEngine;
 public class MarioComponent extends JComponent implements Runnable, KeyListener, FocusListener
 {
     public boolean large = false;
-    public boolean fire = false;
+    public boolean fire = true;
     public int coins = 0;
     public int lives = 3;
     public String levelString = "none";
@@ -30,7 +30,7 @@ public class MarioComponent extends JComponent implements Runnable, KeyListener,
     public void resetStatic()
     {
         large = false;
-        fire = false;
+        fire = true;
         coins = 0;
         lives = 3;
         levelString = "none";
