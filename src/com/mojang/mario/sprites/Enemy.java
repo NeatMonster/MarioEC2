@@ -33,7 +33,7 @@ public class Enemy extends Sprite
     public boolean flyDeath = false;
 
     public boolean avoidCliffs = true;
-    private int type;
+    public int type;
 
     public boolean winged = true;
     private int wingTime = 0;

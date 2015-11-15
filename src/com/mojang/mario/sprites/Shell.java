@@ -22,7 +22,7 @@ public class Shell extends Sprite
     public int anim;
 
     public boolean dead = false;
-    private int deadTime = 0;
+    public int deadTime = 0;
     public boolean carried;
 
 

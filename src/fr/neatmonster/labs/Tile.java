@@ -67,18 +67,19 @@ public enum Tile {
 
     public static enum TileVal {
         // @formatter:off
-        ENEMY(-100),
-        MARIO(-30),
-        EMPTY_CELL(0),
-        FIREBALL(10),
-        LEVEL_OBJECT(30),
-        POWER_UP(70),
-        COIN(100);
+        ENEMY(1, -100),
+        STOMPABLE_ENEMY(2, -50),
+        EMPTY_CELL(8, 0),
+        LEVEL_OBJECT(5, 30),
+        COIN(4, 70),
+        POWER_UP(3, 100);
         // @formatter:on
 
+        public int priority;
         public double value;
 
-        private TileVal(final double value) {
+        private TileVal(final int priority, final double value) {
+            this.priority = priority;
             this.value = value;
         }
     }
@@ -97,21 +98,5 @@ public enum Tile {
 
     public boolean contains(final int x, final int y) {
         return this.x <= x && x <= this.x + w && this.y <= y && y <= this.y + h;
-    }
-
-    public void setInput(final TileVal[] receptField, final TileVal newValue) {
-        final TileVal oldValue = receptField[ordinal()];
-        if (oldValue == TileVal.ENEMY)
-            receptField[ordinal()] = oldValue;
-        else if (oldValue == TileVal.COIN && newValue == TileVal.ENEMY)
-            receptField[ordinal()] = newValue;
-        else if (oldValue == TileVal.LEVEL_OBJECT
-                && (newValue == TileVal.ENEMY || newValue == TileVal.COIN))
-            receptField[ordinal()] = newValue;
-        else if (w == 1 && h == 1)
-            receptField[ordinal()] = newValue;
-        else if (newValue == TileVal.ENEMY || newValue == TileVal.COIN
-                || newValue == TileVal.LEVEL_OBJECT)
-            receptField[ordinal()] = newValue;
     }
 }

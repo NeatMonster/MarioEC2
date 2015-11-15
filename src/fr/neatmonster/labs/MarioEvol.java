@@ -139,9 +139,10 @@ public class MarioEvol extends MarioEC2 {
             nextLevel = 0;
             dist = time = 0.0;
             resetStatic();
+        } else {
+            large = false;
+            fire = true;
         }
-        large = false;
-        fire = true;
 
         startLevel(RANDOM.nextLong(), DIFFICULTY,
                 LevelGenerator.TYPE_OVERGROUND);
@@ -184,8 +185,7 @@ public class MarioEvol extends MarioEC2 {
             else if (ls.mario.deathTime > 0)
                 levelFailed();
 
-            if (ls.tick % 5 == 0)
-                evaluate();
+            evaluate();
         }
     }
 }

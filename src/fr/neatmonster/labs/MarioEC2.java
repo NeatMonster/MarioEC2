@@ -9,7 +9,6 @@ import com.mojang.mario.level.Level;
 import com.mojang.mario.sprites.BulletBill;
 import com.mojang.mario.sprites.Enemy;
 import com.mojang.mario.sprites.FireFlower;
-import com.mojang.mario.sprites.Fireball;
 import com.mojang.mario.sprites.Mario;
 import com.mojang.mario.sprites.Mushroom;
 import com.mojang.mario.sprites.Shell;
@@ -75,22 +74,37 @@ public abstract class MarioEC2 extends MarioComponent {
             final int x = xSprite - xMario;
             final int y = ySprite - yMario;
 
-            final TileVal value;
-            if (sprite instanceof BulletBill || sprite instanceof Enemy
-                    || sprite instanceof FireFlower || sprite instanceof Shell)
-                value = TileVal.ENEMY;
-            else if (sprite instanceof Mario)
-                value = TileVal.MARIO;
-            else if (sprite instanceof Fireball)
-                value = TileVal.FIREBALL;
-            else if (sprite instanceof Mushroom)
+            TileVal value = TileVal.EMPTY_CELL;
+            if (sprite instanceof BulletBill) {
+                final BulletBill bill = (BulletBill) sprite;
+                if (!bill.dead)
+                    value = TileVal.STOMPABLE_ENEMY;
+            } else if (sprite instanceof Enemy) {
+                final Enemy enemy = (Enemy) sprite;
+                if (enemy.deadTime == 0)
+                    switch (enemy.type) {
+                    case Enemy.ENEMY_RED_KOOPA:
+                    case Enemy.ENEMY_GREEN_KOOPA:
+                    case Enemy.ENEMY_GOOMBA:
+                        value = TileVal.STOMPABLE_ENEMY;
+                        break;
+                    case Enemy.ENEMY_SPIKY:
+                    case Enemy.ENEMY_FLOWER:
+                        value = TileVal.ENEMY;
+                        break;
+                    }
+            } else if (sprite instanceof Shell) {
+                final Shell shell = (Shell) sprite;
+                if (!shell.carried && !shell.dead && shell.deadTime == 0)
+                    value = TileVal.STOMPABLE_ENEMY;
+            } else
+                if (sprite instanceof FireFlower || sprite instanceof Mushroom)
                 value = TileVal.POWER_UP;
-            else
-                value = TileVal.EMPTY_CELL;
 
             for (final Tile tile : Tile.values())
-                if (tile.contains(x, y))
-                    tile.setInput(receptField, value);
+                if (tile.contains(x, y) && value.priority < receptField[tile
+                        .ordinal()].priority)
+                    receptField[tile.ordinal()] = value;
         }
 
         for (int y = -9; y <= 10; ++y)
@@ -110,8 +124,9 @@ public abstract class MarioEC2 extends MarioComponent {
                     value = TileVal.EMPTY_CELL;
 
                 for (final Tile tile : Tile.values())
-                    if (tile.contains(x, y))
-                        tile.setInput(receptField, value);
+                    if (tile.contains(x, y) && value.priority < receptField[tile
+                            .ordinal()].priority)
+                        receptField[tile.ordinal()] = value;
             }
 
         final double[] input = new double[61];

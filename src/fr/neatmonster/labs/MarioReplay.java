@@ -110,13 +110,16 @@ public class MarioReplay extends MarioEC2 {
         final LevelScene levelScene = (LevelScene) scene;
         dist += (int) (levelScene.mario.x / 16);
         time += levelScene.timeLeft;
+
         if (reset || ++nextLevel >= LEVELS) {
             nextLevel = 0;
             dist = time = 0.0;
             resetStatic();
+        } else {
+            large = false;
+            fire = true;
         }
-        large = false;
-        fire = true;
+
         startLevel(RANDOM.nextLong(), DIFFICULTY,
                 LevelGenerator.TYPE_OVERGROUND);
         evaluate();
@@ -306,9 +309,7 @@ public class MarioReplay extends MarioEC2 {
                 e.printStackTrace();
             }
 
-            final LevelScene ls = (LevelScene) scene;
-            if (ls.tick % 5 == 0)
-                evaluate();
+            evaluate();
 
             if (reset) {
                 newGame(false);
