@@ -18,7 +18,7 @@ public class SampleLoader
         if (SampleLoader.class.getResource("SampleLoader.class").toString().startsWith("jar:"))
             input = SampleLoader.class.getResourceAsStream("/res/" + resourceName);
         else
-            input = new FileInputStream(new File("res/" + resourceName));
+            input = new FileInputStream(new File("src/res/" + resourceName));
         byte[] d = rip(input);
         AudioInputStream ais = AudioSystem.getAudioInputStream(new ByteArrayInputStream(d));
         return buildSample(rip(ais), ais.getFormat());

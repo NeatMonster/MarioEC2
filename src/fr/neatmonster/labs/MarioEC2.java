@@ -20,7 +20,7 @@ import fr.neatmonster.neato.Individual;
 
 @SuppressWarnings("serial")
 public abstract class MarioEC2 extends MarioComponent {
-    public static final int LEVELS     = 10;
+    public static final int LEVELS     = 20;
     public static final int DIFFICULTY = 3;
 
     public static final Random RANDOM = new Random();
@@ -50,12 +50,10 @@ public abstract class MarioEC2 extends MarioComponent {
 
     public double[] getFitness() {
         final double[] fitness = new double[5];
-        fitness[0] = kills;
-        fitness[1] = coins;
-        fitness[2] = powerup + LEVELS - damage;
-        if (fitness[2] < 0)
-            fitness[2] = 0;
-        fitness[3] = dist;
+        fitness[0] = dist;
+        fitness[1] = kills;
+        fitness[2] = coins;
+        fitness[3] = damage;
         fitness[4] = time;
         return fitness;
     }
@@ -116,10 +114,9 @@ public abstract class MarioEC2 extends MarioComponent {
                         tile.setInput(receptField, value);
             }
 
-        final double[] input = new double[62];
+        final double[] input = new double[61];
         for (int i = 0; i < receptField.length; ++i)
             input[i] = receptField[i].value;
-        input[61] = 1.0;
 
         return input;
     }

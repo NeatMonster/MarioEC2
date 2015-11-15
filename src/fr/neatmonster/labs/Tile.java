@@ -67,13 +67,13 @@ public enum Tile {
 
     public static enum TileVal {
         // @formatter:off
-        ENEMY(-1.0),
-        MARIO(-0.3),
-        EMPTY_CELL(0.0),
-        FIREBALL(0.1),
-        LEVEL_OBJECT(0.3),
-        POWER_UP(0.7),
-        COIN(1.0);
+        ENEMY(-100),
+        MARIO(-30),
+        EMPTY_CELL(0),
+        FIREBALL(10),
+        LEVEL_OBJECT(30),
+        POWER_UP(70),
+        COIN(100);
         // @formatter:on
 
         public double value;

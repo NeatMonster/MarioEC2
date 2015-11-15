@@ -240,13 +240,13 @@ public class MarioComponent extends JComponent implements Runnable, KeyListener,
 
             renderedFrames++;
 
-            try
-            {
-                Thread.sleep(5);
-            }
-            catch (InterruptedException e)
-            {
-            }
+            //try
+            //{
+            //    Thread.sleep(5);
+            //}
+            //catch (InterruptedException e)
+            //{
+            //}
         }
 
         Art.stopMusic();

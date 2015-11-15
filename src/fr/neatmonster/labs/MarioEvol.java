@@ -19,13 +19,12 @@ import com.mojang.mario.LevelScene;
 import com.mojang.mario.level.LevelGenerator;
 import com.mojang.sonar.FakeSoundEngine;
 
-import fr.neatmonster.neato.Ensemble;
 import fr.neatmonster.neato.Individual;
 import fr.neatmonster.neato.Population;
 
 @SuppressWarnings("serial")
 public class MarioEvol extends MarioEC2 {
-    public static final int THREADS = 36;
+    public static final int THREADS = 8;
 
     public static BlockingQueue<Individual> queue;
     public static CountDownLatch            countdown;
@@ -45,64 +44,76 @@ public class MarioEvol extends MarioEC2 {
         for (int i = 0; i < THREADS; ++i)
             new Thread(new MarioEvol(), "Worker-" + i).start();
 
-        int hasEnsemble = 0, generation = 0;
+        int generation = 0;
         final Population pop = new Population();
         long start = System.currentTimeMillis();
+
+        try {
+            countdown = new CountDownLatch(POPULATION);
+
+            for (int i = 0; i < POPULATION; ++i)
+                queue.put(pop.parents.get(i));
+
+            countdown.await();
+        } catch (final InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        pop.firstGeneration();
+
+        System.out.println(
+                "Calculated in " + (System.currentTimeMillis() - start) + "ms");
+        start = System.currentTimeMillis();
+
         while (true) {
             ++generation;
 
             try {
-                countdown = new CountDownLatch(POPULATION + hasEnsemble);
+                countdown = new CountDownLatch(POPULATION);
 
-                if (hasEnsemble > 0)
-                    queue.put(pop.ensemble);
-
-                pop.listAll();
                 for (int i = 0; i < POPULATION; ++i)
-                    queue.put(pop.phenotypes.get(i));
+                    queue.put(pop.children.get(i));
 
                 countdown.await();
             } catch (final InterruptedException e) {
                 e.printStackTrace();
             }
 
-            if (hasEnsemble > 0) {
-                String log = "# Generation " + generation + "\n";
-                final double[] fitness = pop.ensemble.fitness;
-                log += "Kills: " + fitness[0] + "\n";
-                log += "Coins: " + fitness[1] + "\n";
-                log += "Damage: " + fitness[2] + "\n";
-                log += "Distance: " + fitness[3] + "\n";
-                log += "Time: " + fitness[4] + "\n";
-                System.out.print(log);
-                try {
-                    final PrintWriter out = new PrintWriter(new BufferedWriter(
-                            new FileWriter(new File(dir, "log.txt"), true)));
-                    out.print(log);
-                    out.close();
-                } catch (final IOException e) {
-                    e.printStackTrace();
-                }
+            pop.nextGeneration();
 
+            String log = "# Generation " + generation + "\n";
+            final double[] fitness = pop.parents.get(0).fitness;
+            log += "Distance: " + fitness[0] + "\n";
+            log += "Kills: " + fitness[1] + "\n";
+            log += "Coins: " + fitness[2] + "\n";
+            log += "Damage: " + fitness[3] + "\n";
+            System.out.print(log);
+            try {
+                final PrintWriter out = new PrintWriter(new BufferedWriter(
+                        new FileWriter(new File(dir, "log.txt"), true)));
+                out.print(log);
+                out.close();
+            } catch (final IOException e) {
+                e.printStackTrace();
+            }
+
+            for (int i = 0; i < 5; ++i)
                 try {
                     final GsonBuilder gsonBuild = new GsonBuilder();
                     gsonBuild.setPrettyPrinting();
-                    gsonBuild.registerTypeAdapter(Ensemble.class,
-                            new EnsembleSerializer());
+                    gsonBuild.registerTypeAdapter(Individual.class,
+                            new IndividualSerializer());
                     final Gson gson = gsonBuild.create();
-                    final String ens = gson.toJson(pop.ensemble);
-                    final PrintWriter writer = new PrintWriter(new File(
-                            uuid.toString(), "ens" + generation + ".json"));
+                    final String ens = gson.toJson(pop.parents.get(i));
+                    final PrintWriter writer = new PrintWriter(
+                            new File(uuid.toString(),
+                                    "gen" + generation + "ind" + i + ".json"));
                     writer.println(ens);
                     writer.close();
                 } catch (final IOException e) {
                     e.printStackTrace();
                 }
-            }
 
-            pop.newGeneration();
-
-            hasEnsemble = 1;
             System.out.println("Calculated in "
                     + (System.currentTimeMillis() - start) + "ms");
             start = System.currentTimeMillis();
@@ -113,7 +124,7 @@ public class MarioEvol extends MarioEC2 {
     public void newGame(final boolean victory) {
         final LevelScene levelScene = (LevelScene) scene;
         dist += (int) (levelScene.mario.x / 16);
-        time += levelScene.timeLeft;
+        time += levelScene.tick;
 
         if (++nextLevel >= LEVELS) {
             creature.fitness = getFitness();
@@ -129,6 +140,8 @@ public class MarioEvol extends MarioEC2 {
             dist = time = 0.0;
             resetStatic();
         }
+        large = false;
+        fire = true;
 
         startLevel(RANDOM.nextLong(), DIFFICULTY,
                 LevelGenerator.TYPE_OVERGROUND);

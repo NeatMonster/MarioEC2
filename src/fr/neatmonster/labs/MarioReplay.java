@@ -17,7 +17,6 @@ import java.awt.image.VolatileImage;
 import java.io.File;
 import java.nio.file.Files;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.swing.JFrame;
@@ -28,7 +27,6 @@ import com.mojang.mario.Art;
 import com.mojang.mario.LevelScene;
 import com.mojang.mario.level.LevelGenerator;
 
-import fr.neatmonster.neato.Ensemble;
 import fr.neatmonster.neato.Individual;
 import fr.neatmonster.neato.Neuron;
 import fr.neatmonster.neato.Synapse;
@@ -63,7 +61,7 @@ public class MarioReplay extends MarioEC2 {
         final JFrame frame = new JFrame("Mario Replay");
 
         final FileDialog fd = new FileDialog(frame,
-                "Choose the ensemble to replay", FileDialog.LOAD);
+                "Choose the individual to replay", FileDialog.LOAD);
         fd.setDirectory(".");
         fd.setFile("*.json");
         fd.setVisible(true);
@@ -89,8 +87,7 @@ public class MarioReplay extends MarioEC2 {
         replay.start();
     }
 
-    public volatile boolean reset       = false;
-    public int              nextElement = 0;
+    public volatile boolean reset = false;
 
     public MarioReplay(final File file) {
         super();
@@ -98,11 +95,11 @@ public class MarioReplay extends MarioEC2 {
         try {
             final GsonBuilder gsonBuild = new GsonBuilder();
             gsonBuild.setPrettyPrinting();
-            gsonBuild.registerTypeAdapter(Ensemble.class,
-                    new EnsembleDeserializer());
+            gsonBuild.registerTypeAdapter(Individual.class,
+                    new IndividualDeserializer());
             final Gson gson = gsonBuild.create();
             final String ens = new String(Files.readAllBytes(file.toPath()));
-            creature = gson.fromJson(ens, Ensemble.class);
+            creature = gson.fromJson(ens, Individual.class);
         } catch (final Exception e) {
             e.printStackTrace();
         }
@@ -113,11 +110,13 @@ public class MarioReplay extends MarioEC2 {
         final LevelScene levelScene = (LevelScene) scene;
         dist += (int) (levelScene.mario.x / 16);
         time += levelScene.timeLeft;
-        if (++nextLevel >= LEVELS) {
+        if (reset || ++nextLevel >= LEVELS) {
             nextLevel = 0;
             dist = time = 0.0;
             resetStatic();
         }
+        large = false;
+        fire = true;
         startLevel(RANDOM.nextLong(), DIFFICULTY,
                 LevelGenerator.TYPE_OVERGROUND);
         evaluate();
@@ -135,24 +134,16 @@ public class MarioReplay extends MarioEC2 {
 
             g2d.setFont(new Font("Rockwell", Font.PLAIN, 50));
 
-            final List<Individual> elements = ((Ensemble) creature).elements;
-            final Individual current = elements
-                    .get(nextElement++ / 20 % elements.size());
-
             final Map<Integer, Box> cells = new HashMap<Integer, Box>();
             for (int i = 0; i < INPUTS; ++i) {
-                final Neuron neuron = current.inputs.get(i);
-                if (i == INPUTS - 1)
-                    cells.put(i, new Box(205, 225, 10, 10, neuron.value));
-                else {
-                    final Tile tile = Tile.values()[i];
-                    cells.put(i, new Box(115 + 10 * tile.x, 115 + 10 * tile.y,
-                            10 * tile.w, 10 * tile.h, neuron.value));
-                }
+                final Neuron neuron = creature.inputs.get(i);
+                final Tile tile = Tile.values()[i];
+                cells.put(i, new Box(115 + 10 * tile.x, 115 + 10 * tile.y,
+                        10 * tile.w, 10 * tile.h, neuron.value));
             }
 
             for (int i = 0; i < OUTPUTS; ++i) {
-                final Neuron neuron = current.outputs.get(i);
+                final Neuron neuron = creature.outputs.get(i);
                 cells.put(INPUTS + i,
                         new Box(575, 25 + 40 * i, 10, 10, neuron.value));
                 final int color = neuron.value > 0.5 ? 0x80000000 : 0x30000000;
@@ -161,12 +152,12 @@ public class MarioReplay extends MarioEC2 {
                 g2d.drawString(BUTTONS[i], 590, 33 + 40 * i);
             }
 
-            for (final Neuron neuron : current.hidden)
+            for (final Neuron neuron : creature.hidden)
                 cells.put(neuron.neuronId, new Box((XMIN + XMAX) / 2,
                         (YMIN + YMAX) / 2, 10, 10, neuron.value));
 
             for (int n = 0; n < 4; ++n)
-                for (final Synapse connect : current.connects)
+                for (final Synapse connect : creature.connects)
                     if (connect.enabled) {
                         final Box in = cells.get(connect.input.neuronId);
                         final Box out = cells.get(connect.output.neuronId);
@@ -194,7 +185,7 @@ public class MarioReplay extends MarioEC2 {
                         }
                     }
 
-            for (final Synapse connect : current.connects)
+            for (final Synapse connect : creature.connects)
                 if (connect.enabled) {
                     final Box in = cells.get(connect.input.neuronId);
                     final Box out = cells.get(connect.output.neuronId);
@@ -320,8 +311,8 @@ public class MarioReplay extends MarioEC2 {
                 evaluate();
 
             if (reset) {
-                reset = false;
                 newGame(false);
+                reset = false;
             }
         }
     }
