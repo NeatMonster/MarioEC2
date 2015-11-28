@@ -16,6 +16,7 @@ public class Level
             "ANIMATED",//
     };
 
+    public static volatile boolean behaviorsLoaded = false;
     public static byte[] TILE_BEHAVIORS = new byte[256];
 
     public static final int BIT_BLOCK_UPPER = 1 << 0;
@@ -54,6 +55,7 @@ public class Level
     public static void loadBehaviors(DataInputStream dis) throws IOException
     {
         dis.readFully(Level.TILE_BEHAVIORS);
+        behaviorsLoaded = true;
     }
 
     public static void saveBehaviors(DataOutputStream dos) throws IOException

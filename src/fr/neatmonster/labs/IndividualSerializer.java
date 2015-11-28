@@ -1,6 +1,7 @@
 package fr.neatmonster.labs;
 
 import java.lang.reflect.Type;
+import java.util.Map.Entry;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -21,15 +22,22 @@ public class IndividualSerializer implements JsonSerializer<Individual> {
         final JsonObject creatureObj = new JsonObject();
 
         final JsonArray genotypeArr = new JsonArray();
-        for (final Gene gene : creatureSrc.genotype) {
+        for (final Gene gene : creatureSrc.genotype.values()) {
             final JsonObject geneObj = new JsonObject();
             geneObj.add("input", new JsonPrimitive(gene.input));
             geneObj.add("output", new JsonPrimitive(gene.output));
             geneObj.add("weight", new JsonPrimitive(gene.weight));
             geneObj.add("enabled", new JsonPrimitive(gene.enabled));
+            geneObj.add("innov", new JsonPrimitive(gene.innovation));
             genotypeArr.add(geneObj);
         }
         creatureObj.add("genotype", genotypeArr);
+
+        final JsonObject biasesObj = new JsonObject();
+        for (final Entry<Integer, Double> bias : creatureSrc.biases.entrySet())
+            biasesObj.add(Integer.toString(bias.getKey()),
+                    new JsonPrimitive(bias.getValue()));
+        creatureObj.add("biases", biasesObj);
 
         final JsonArray inputsArr = new JsonArray();
         for (final Neuron neuron : creatureSrc.inputs)

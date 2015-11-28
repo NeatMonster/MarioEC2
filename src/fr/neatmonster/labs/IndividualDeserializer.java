@@ -1,6 +1,7 @@
 package fr.neatmonster.labs;
 
 import java.lang.reflect.Type;
+import java.util.Map.Entry;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
@@ -30,8 +31,18 @@ public class IndividualDeserializer implements JsonDeserializer<Individual> {
             gene.output = geneObj.get("output").getAsInt();
             gene.weight = geneObj.get("weight").getAsDouble();
             gene.enabled = geneObj.get("enabled").getAsBoolean();
-            creature.genotype.add(gene);
+            gene.innovation = geneObj.get("innov").getAsInt();
+            creature.genotype.put(gene.innovation, gene);
         }
+
+        final JsonObject biasesObj = creatureObj.get("biases")
+                .getAsJsonObject();
+        for (final Entry<String, JsonElement> bias : biasesObj.entrySet()) {
+            final int neuron = Integer.parseInt(bias.getKey());
+            final double value = bias.getValue().getAsDouble();
+            creature.biases.put(neuron, value);
+        }
+
         creature.generate();
 
         final JsonArray inputsArr = creatureObj.get("inputs").getAsJsonArray();

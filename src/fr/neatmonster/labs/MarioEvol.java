@@ -42,29 +42,12 @@ public class MarioEvol extends MarioEC2 {
         queue = new ArrayBlockingQueue<Individual>(POPULATION);
 
         for (int i = 0; i < THREADS; ++i)
-            new Thread(new MarioEvol(), "Worker-" + i).start();
+            new Thread(new MarioEvol(), "Mario-" + i).start();
 
-        int generation = 0;
         final Population pop = new Population();
         long start = System.currentTimeMillis();
 
-        try {
-            countdown = new CountDownLatch(POPULATION);
-
-            for (int i = 0; i < POPULATION; ++i)
-                queue.put(pop.parents.get(i));
-
-            countdown.await();
-        } catch (final InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        pop.firstGeneration();
-
-        System.out.println(
-                "Calculated in " + (System.currentTimeMillis() - start) + "ms");
-        start = System.currentTimeMillis();
-
+        int generation = 0;
         while (true) {
             ++generation;
 
@@ -72,30 +55,22 @@ public class MarioEvol extends MarioEC2 {
                 countdown = new CountDownLatch(POPULATION);
 
                 for (int i = 0; i < POPULATION; ++i)
-                    queue.put(pop.children.get(i));
+                    queue.put(pop.population.get(i));
 
                 countdown.await();
             } catch (final InterruptedException e) {
                 e.printStackTrace();
             }
 
-            pop.nextGeneration();
-
             String log = "# Generation " + generation + "\n";
-            final double[] fitness = pop.parents.get(0).fitness;
-            log += "Distance: " + fitness[0] + "\n";
-            log += "Kills: " + fitness[1] + "\n";
-            log += "Coins: " + fitness[2] + "\n";
-            log += "Damage: " + fitness[3] + "\n";
-            System.out.print(log);
-            try {
-                final PrintWriter out = new PrintWriter(new BufferedWriter(
-                        new FileWriter(new File(dir, "log.txt"), true)));
-                out.print(log);
-                out.close();
-            } catch (final IOException e) {
-                e.printStackTrace();
-            }
+            log += "Best distance: " + pop.bestFitness + "\n";
+            log += "Average distance: " + pop.avgFitness + "\n";
+//            final Individual best = pop.population.get(0);
+//            log += "Distance: " + best.fitness[0] + "\n";
+//            log += "Kills: " + best.fitness[1] + "\n";
+//            log += "Coins: " + best.fitness[2] + "\n";
+//            log += "Damage: " + best.fitness[3] + "\n";
+//            log += "Time: " + best.fitness[4] + "\n";
 
             for (int i = 0; i < 5; ++i)
                 try {
@@ -104,21 +79,36 @@ public class MarioEvol extends MarioEC2 {
                     gsonBuild.registerTypeAdapter(Individual.class,
                             new IndividualSerializer());
                     final Gson gson = gsonBuild.create();
-                    final String ens = gson.toJson(pop.parents.get(i));
+                    final String ind = gson.toJson(pop.population.get(i));
                     final PrintWriter writer = new PrintWriter(
                             new File(uuid.toString(),
                                     "gen" + generation + "ind" + i + ".json"));
-                    writer.println(ens);
+                    writer.println(ind);
                     writer.close();
                 } catch (final IOException e) {
                     e.printStackTrace();
                 }
 
-            System.out.println("Calculated in "
-                    + (System.currentTimeMillis() - start) + "ms");
+            pop.newGeneration();
+
+            log += "Calculated in " + (System.currentTimeMillis() - start)
+                    + "ms";
+            System.out.println(log);
             start = System.currentTimeMillis();
+
+            try {
+                final PrintWriter out = new PrintWriter(new BufferedWriter(
+                        new FileWriter(new File(dir, "log.txt"), true)));
+                out.print(log);
+                out.close();
+            } catch (final IOException e) {
+                e.printStackTrace();
+            }
         }
     }
+
+    public double maxDistance = 0;
+    public int    staleness   = 0;
 
     @Override
     public void newGame(final boolean victory) {
@@ -143,6 +133,8 @@ public class MarioEvol extends MarioEC2 {
             large = false;
             fire = true;
         }
+        staleness = 0;
+        maxDistance = 0.0;
 
         startLevel(RANDOM.nextLong(), DIFFICULTY,
                 LevelGenerator.TYPE_OVERGROUND);
@@ -185,7 +177,18 @@ public class MarioEvol extends MarioEC2 {
             else if (ls.mario.deathTime > 0)
                 levelFailed();
 
-            evaluate();
+            final double distance = ls.mario.x;
+            if (distance > maxDistance) {
+                maxDistance = distance;
+                staleness = 0;
+            } else {
+                ++staleness;
+                if (staleness > 180)
+                    levelFailed();
+            }
+
+            if (ls.tick % 5 == 0)
+                evaluate();
         }
     }
 }

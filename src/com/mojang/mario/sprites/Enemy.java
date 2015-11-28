@@ -77,7 +77,7 @@ public class Enemy extends Sprite
         {
             if (yMarioD > -height && yMarioD < world.mario.height)
             {
-                if (type != Enemy.ENEMY_SPIKY && world.mario.ya > 0 && yMarioD <= 0 && (!world.mario.onGround || !world.mario.wasOnGround))
+                if (type != Enemy.ENEMY_SPIKY && type != Enemy.ENEMY_FLOWER && world.mario.ya > 0 && yMarioD <= 0 && (!world.mario.onGround || !world.mario.wasOnGround))
                 {
                     world.mario.stomp(this);
                     if (winged)

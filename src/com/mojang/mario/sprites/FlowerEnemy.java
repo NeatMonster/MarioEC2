@@ -5,13 +5,13 @@ import com.mojang.mario.LevelScene;
 public class FlowerEnemy extends Enemy
 {
     private int tick;
-    private int yStart;
+    public int yStart;
     private int jumpTime = 0;
     private LevelScene world;
     
     public FlowerEnemy(LevelScene world, int x, int y)
     {
-        super(world, x, y, 1, ENEMY_SPIKY, false);
+        super(world, x, y, 1, ENEMY_FLOWER, false);
         
         noFireballDeath = false;
         this.world = world;

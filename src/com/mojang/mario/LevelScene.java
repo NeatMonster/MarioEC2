@@ -53,18 +53,19 @@ public class LevelScene extends Scene implements SpriteContext
 
     public void init()
     {
-        try
-        {
-            if (LevelScene.class.getResource("LevelScene.class").toString().startsWith("jar:"))
-                Level.loadBehaviors(new DataInputStream(LevelScene.class.getResourceAsStream("/res/tiles.dat")));
-            else
-                Level.loadBehaviors(new DataInputStream(new FileInputStream(new File("src/res/tiles.dat"))));
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-            System.exit(0);
-        }
+        if (!Level.behaviorsLoaded)
+            try
+            {
+                if (LevelScene.class.getResource("LevelScene.class").toString().startsWith("jar:"))
+                    Level.loadBehaviors(new DataInputStream(LevelScene.class.getResourceAsStream("/res/tiles.dat")));
+                else
+                    Level.loadBehaviors(new DataInputStream(new FileInputStream(new File("src/res/tiles.dat"))));
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+                System.exit(0);
+            }
         /*        if (replayer!=null)
          {
          level = LevelGenerator.createLevel(2048, 15, replayer.nextLong());

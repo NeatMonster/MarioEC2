@@ -9,6 +9,7 @@ import com.mojang.mario.level.Level;
 import com.mojang.mario.sprites.BulletBill;
 import com.mojang.mario.sprites.Enemy;
 import com.mojang.mario.sprites.FireFlower;
+import com.mojang.mario.sprites.FlowerEnemy;
 import com.mojang.mario.sprites.Mario;
 import com.mojang.mario.sprites.Mushroom;
 import com.mojang.mario.sprites.Shell;
@@ -19,7 +20,7 @@ import fr.neatmonster.neato.Individual;
 
 @SuppressWarnings("serial")
 public abstract class MarioEC2 extends MarioComponent {
-    public static final int LEVELS     = 20;
+    public static final int LEVELS     = 100;
     public static final int DIFFICULTY = 3;
 
     public static final Random RANDOM = new Random();
@@ -47,14 +48,15 @@ public abstract class MarioEC2 extends MarioComponent {
         scene.toggleKey(Mario.KEY_RIGHT, output[5] > 0.5);
     }
 
-    public double[] getFitness() {
-        final double[] fitness = new double[5];
-        fitness[0] = dist;
-        fitness[1] = kills;
-        fitness[2] = coins;
-        fitness[3] = damage;
-        fitness[4] = time;
-        return fitness;
+    public double getFitness() {
+//        final double[] fitness = new double[5];
+//        fitness[0] = dist;
+//        fitness[1] = kills;
+//        fitness[2] = coins;
+//        fitness[3] = damage;
+//        fitness[4] = time;
+//        return fitness;
+        return dist;
     }
 
     public double[] getInput() {
@@ -89,8 +91,12 @@ public abstract class MarioEC2 extends MarioComponent {
                         value = TileVal.STOMPABLE_ENEMY;
                         break;
                     case Enemy.ENEMY_SPIKY:
-                    case Enemy.ENEMY_FLOWER:
                         value = TileVal.ENEMY;
+                        break;
+                    case Enemy.ENEMY_FLOWER:
+                        final FlowerEnemy flower = (FlowerEnemy) enemy;
+                        if (flower.y < flower.yStart)
+                            value = TileVal.ENEMY;
                         break;
                     }
             } else if (sprite instanceof Shell) {
@@ -129,9 +135,12 @@ public abstract class MarioEC2 extends MarioComponent {
                         receptField[tile.ordinal()] = value;
             }
 
-        final double[] input = new double[61];
+        final double[] input = new double[64];
         for (int i = 0; i < receptField.length; ++i)
             input[i] = receptField[i].value;
+        input[61] = !large && !fire ? 1.0 : 0.0;
+        input[62] = large && !fire ? 1.0 : 0.0;
+        input[63] = fire ? 1.0 : 0.0;
 
         return input;
     }

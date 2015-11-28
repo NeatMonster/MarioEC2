@@ -87,7 +87,9 @@ public class MarioReplay extends MarioEC2 {
         replay.start();
     }
 
-    public volatile boolean reset = false;
+    public double           maxDistance = 0;
+    public int              staleness   = 0;
+    public volatile boolean reset       = false;
 
     public MarioReplay(final File file) {
         super();
@@ -119,6 +121,8 @@ public class MarioReplay extends MarioEC2 {
             large = false;
             fire = true;
         }
+        staleness = 0;
+        maxDistance = 0.0;
 
         startLevel(RANDOM.nextLong(), DIFFICULTY,
                 LevelGenerator.TYPE_OVERGROUND);
@@ -140,9 +144,13 @@ public class MarioReplay extends MarioEC2 {
             final Map<Integer, Box> cells = new HashMap<Integer, Box>();
             for (int i = 0; i < INPUTS; ++i) {
                 final Neuron neuron = creature.inputs.get(i);
-                final Tile tile = Tile.values()[i];
-                cells.put(i, new Box(115 + 10 * tile.x, 115 + 10 * tile.y,
-                        10 * tile.w, 10 * tile.h, neuron.value));
+                if (i < INPUTS - 3) {
+                    final Tile tile = Tile.values()[i];
+                    cells.put(i, new Box(115 + 10 * tile.x, 115 + 10 * tile.y,
+                            10 * tile.w, 10 * tile.h, neuron.value));
+                } else
+                    cells.put(i, new Box(205 - 20 * (INPUTS - 1 - i), 225, 10,
+                            10, neuron.value));
             }
 
             for (int i = 0; i < OUTPUTS; ++i) {
@@ -156,14 +164,17 @@ public class MarioReplay extends MarioEC2 {
             }
 
             for (final Neuron neuron : creature.hidden)
-                cells.put(neuron.neuronId, new Box((XMIN + XMAX) / 2,
-                        (YMIN + YMAX) / 2, 10, 10, neuron.value));
+                if (neuron.shouldDisplay())
+                    cells.put(neuron.neuronId, new Box((XMIN + XMAX) / 2,
+                            (YMIN + YMAX) / 2, 10, 10, neuron.value));
 
             for (int n = 0; n < 4; ++n)
                 for (final Synapse connect : creature.connects)
                     if (connect.enabled) {
                         final Box in = cells.get(connect.input.neuronId);
                         final Box out = cells.get(connect.output.neuronId);
+                        if (in == null || out == null)
+                            continue;
 
                         if (connect.input.neuronId >= INPUTS + OUTPUTS) {
                             in.x = (int) (0.75 * in.x + 0.25 * out.x);
@@ -192,6 +203,8 @@ public class MarioReplay extends MarioEC2 {
                 if (connect.enabled) {
                     final Box in = cells.get(connect.input.neuronId);
                     final Box out = cells.get(connect.output.neuronId);
+                    if (in == null || out == null)
+                        continue;
 
                     final float value = (float) Math
                             .abs(Neuron.sigmoid(connect.weight));
@@ -309,12 +322,24 @@ public class MarioReplay extends MarioEC2 {
                 e.printStackTrace();
             }
 
-            evaluate();
+            final LevelScene ls = (LevelScene) scene;
+            final double distance = ls.mario.x;
+            if (distance > maxDistance) {
+                maxDistance = distance;
+                staleness = 0;
+            } else {
+                ++staleness;
+                if (staleness > 180)
+                    levelFailed();
+            }
 
             if (reset) {
                 newGame(false);
                 reset = false;
             }
+
+            if (ls.tick % 5 == 0)
+                evaluate();
         }
     }
 }
